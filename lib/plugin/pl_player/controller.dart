@@ -208,7 +208,7 @@ class PlPlayerController with BlockConfigMixin {
 
   late final bool autoPiP = Pref.autoPiP;
   bool get isPipMode =>
-      (Platform.isAndroid && Floating().isPipMode) ||
+      (PlatformUtils.isMobile && Floating().isPipMode) ||
       (PlatformUtils.isDesktop && isDesktopPip);
   late bool isDesktopPip = false;
   late Rect _lastWindowBounds;

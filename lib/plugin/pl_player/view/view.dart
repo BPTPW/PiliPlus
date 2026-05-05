@@ -76,6 +76,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
+import 'package:floating/floating.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -300,6 +301,25 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (Platform.isIOS &&
+        plPlayerController.autoPiP &&
+        const <AppLifecycleState>[.paused, .detached].contains(state) &&
+        plPlayerController.playerStatus.isPlaying) {
+      () async {
+        final isAvailable = await Floating().isPipAvailable;
+        if (isAvailable && !Floating().isPipMode) {
+          plPlayerController.enterPip(isAuto: true);
+        } else {
+          _handleBackgroundPause(state);
+        }
+      }();
+      return;
+    }
+
+    _handleBackgroundPause(state);
+  }
+
+  void _handleBackgroundPause(AppLifecycleState state) {
     if (!plPlayerController.continuePlayInBackground.value) {
       late final player = plPlayerController.videoPlayerController;
       if (const <AppLifecycleState>[.paused, .detached].contains(state)) {
